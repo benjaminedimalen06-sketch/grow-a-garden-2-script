@@ -1,16 +1,23 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Remove old GUI
-if playerGui:FindFirstChild("GrowAGarden2") then
-    playerGui:FindFirstChild("GrowAGarden2"):Destroy()
+local GUI_NAME = "GrowAGarden2"
+
+-- ==================== CLEAN OLD GUI ====================
+local oldGui = playerGui:FindFirstChild(GUI_NAME)
+if oldGui then
+    oldGui:Destroy()
 end
 
+-- Wait a bit to make sure everything is cleaned
+task.wait(0.1)
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "GrowAGarden2"
+ScreenGui.Name = GUI_NAME
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = playerGui
 
@@ -58,26 +65,26 @@ Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 22
 Title.Font = Enum.Font.GothamBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = TitleBar
 Title.Position = UDim2.new(0, 20, 0, 0)
+Title.Parent = TitleBar
 
 local Credit = Instance.new("TextLabel")
 Credit.Size = UDim2.new(1, -160, 0, 18)
 Credit.Position = UDim2.new(0, 20, 0.5, 8)
 Credit.BackgroundTransparency = 1
-Credit.Text = "Made by zvzvkill225 / Zyrox / Follow my account roblox"
+Credit.Text = "Made by zvzvkill225 / Zyrox"
 Credit.TextColor3 = Color3.fromRGB(160, 160, 160)
 Credit.TextSize = 13
 Credit.Font = Enum.Font.Gotham
 Credit.TextXAlignment = Enum.TextXAlignment.Left
 Credit.Parent = TitleBar
 
--- Buttons
+-- Buttons (Minimize & Close)
 local MinBtn = Instance.new("TextButton")
 MinBtn.Size = UDim2.new(0, 40, 0, 40)
 MinBtn.Position = UDim2.new(1, -85, 0, 5)
 MinBtn.BackgroundTransparency = 1
-MinBtn.Text = "-"
+MinBtn.Text = "−"
 MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 MinBtn.TextSize = 28
 MinBtn.Font = Enum.Font.GothamBold
@@ -93,7 +100,7 @@ CloseBtn.TextSize = 24
 CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.Parent = TitleBar
 
--- Scrolling
+-- Scrolling Frame
 local Scroll = Instance.new("ScrollingFrame")
 Scroll.Size = UDim2.new(1, -20, 1, -70)
 Scroll.Position = UDim2.new(0, 10, 0, 60)
@@ -112,7 +119,7 @@ Padding.PaddingLeft = UDim.new(0, 5)
 Padding.PaddingRight = UDim.new(0, 5)
 Padding.Parent = Scroll
 
--- Drag Function
+-- Drag
 local dragging = false
 local dragStart, startPos
 
@@ -137,7 +144,7 @@ TitleBar.InputEnded:Connect(function(input)
     end
 end)
 
--- ==================== IMPROVED ADD BUTTON ====================
+-- Add Button Function (Improved)
 local function AddButton(text, url)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 55)
@@ -148,22 +155,24 @@ local function AddButton(text, url)
     Btn.TextXAlignment = Enum.TextXAlignment.Left
     Btn.Font = Enum.Font.GothamSemibold
     Btn.Parent = Scroll
-    
+    Btn.Active = true
+
     local BtnCorner = Instance.new("UICorner")
     BtnCorner.CornerRadius = UDim.new(0, 12)
     BtnCorner.Parent = Btn
-    
+
     local BtnStroke = Instance.new("UIStroke")
     BtnStroke.Color = Color3.fromRGB(50, 50, 55)
     BtnStroke.Thickness = 1
     BtnStroke.Parent = Btn
-    
-    -- Hover Effect
+
+    -- Hover
     Btn.MouseEnter:Connect(function()
         if Btn.Active then
             TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 45)}):Play()
         end
     end)
+
     Btn.MouseLeave:Connect(function()
         if Btn.Active then
             TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 30, 34)}):Play()
@@ -172,24 +181,23 @@ local function AddButton(text, url)
 
     Btn.MouseButton1Click:Connect(function()
         if not Btn.Active then return end
-        
+
         Btn.Text = " 🔄 Loading..."
         Btn.Active = false
-        
+
         task.spawn(function()
             local success, err = pcall(function()
                 loadstring(game:HttpGet(url, true))()
             end)
-            
+
             if success then
                 Btn.BackgroundColor3 = Color3.fromRGB(0, 80, 50)
                 Btn.Text = " ✅ Loaded Successfully"
                 BtnStroke.Color = Color3.fromRGB(0, 255, 140)
-                -- Permanently disable
-                Btn.Active = false
             else
+                warn("Failed to load " .. text .. ": " .. tostring(err))
                 Btn.Text = " ❌ Failed to Load"
-                wait(2)
+                task.wait(2)
                 Btn.Text = " " .. text
                 Btn.Active = true
                 Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 34)
@@ -213,9 +221,9 @@ MinBtn.MouseButton1Click:Connect(function()
     TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Size = targetSize}):Play()
 end)
 
--- Close
+-- Close (Destroy so you can re-execute the script again)
 CloseBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
-print("🌱 Grow a Garden 2 Loaded Successfully! (Improved Version)")
+print("🌱 Grow a Garden 2 Loaded Successfully! (Fixed Version)")
